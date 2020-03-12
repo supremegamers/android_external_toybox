@@ -796,8 +796,9 @@ struct readelf_data {
   char *x, *p;
 
   char *elf, *shstrtab, *f;
-  unsigned long long shoff, phoff, size;
-  int bits, endian, shnum, shentsize, phentsize;
+  long long shoff, phoff, size;
+  int bits, shnum, shentsize, phentsize;
+  int64_t (*elf_int)(void *ptr, unsigned size);
 };
 
 // toys/pending/route.c
@@ -812,7 +813,7 @@ struct sh_data {
   char *c;
 
   long lineno;
-  char **locals, *subshell_env, *ifs;
+  char **locals, *subshell_env;
   struct double_list functions;
   unsigned options, jobcnt, loc_ro, loc_magic;
   int hfd;  // next high filehandle (>= 10)
@@ -832,13 +833,10 @@ struct sh_data {
     struct sh_process {
       struct sh_process *next, *prev;
       struct arg_list *delete;   // expanded strings
-      // undo redirects, a=b at start, child PID, exit status, has !
-      int *urd, envlen, pid, exit, not;
+      int *urd, envlen, pid, exit;  // undo redirects, child PID, exit status
       struct sh_arg arg;
     } *procs, *proc;
   } *jobs, *job;
-
-  struct sh_arg *arg;
 };
 
 // toys/pending/stty.c
@@ -986,28 +984,37 @@ struct useradd_data {
 // toys/pending/vi.c
 
 struct vi_data {
-  char *s;
-  int vi_mode, tabstop, list;
-  int cur_col, cur_row, scr_row;
-  int drawn_row, drawn_col;
-  int count0, count1, vi_mov_flag;
-  unsigned screen_height, screen_width;
-  char vi_reg, *last_search;
-  struct str_line {
-    int alloc;
-    int len;
-    char *data;
-  } *il;
-  size_t screen, cursor; //offsets
-  //yank buffer
-  struct yank_buf {
-    char reg;
-    int alloc;
-    char* data;
-  } yank;
+    char *s;
+    int cur_col;
+    int cur_row;
+    int scr_row;
+    int drawn_row;
+    int drawn_col;
+    unsigned screen_height;
+    unsigned screen_width;
+    int vi_mode;
+    int count0;
+    int count1;
+    int vi_mov_flag;
+    int modified;
+    char vi_reg;
+    char *last_search;
+    int tabstop;
+    int list;
+    struct str_line {
+      int alloc;
+      int len;
+      char *data;
+    } *il;
+    size_t screen; //offset in slices must be higher than cursor
+    size_t cursor; //offset in slices
+    //yank buffer
+    struct yank_buf {
+      char reg;
+      int alloc;
+      char* data;
+    } yank;
 
-  int modified, fd;
-  size_t filesize;
 // mem_block contains RO data that is either original file as mmap
 // or heap allocated inserted data
 //
@@ -1041,6 +1048,10 @@ struct vi_data {
       const char *data;
     } *node;
   } *slices;
+
+  size_t filesize;
+  int fd; //file_handle
+
 };
 
 // toys/pending/wget.c
