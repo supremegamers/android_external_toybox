@@ -47,15 +47,14 @@ make_toolchain()
       HOST="$TARGET"
       export NATIVE=y
       LP="$OUTPUT/${RENAME:-$TARGET}-cross/bin:$LP"
-      [ -z "$(which $TARGET-cc)" ] && return
     fi
     COMMON_CONFIG="CC=\"$HOST-gcc -static --static\" CXX=\"$HOST-g++ -static --static\""
     export -n HOST
     OUTPUT="$OUTPUT/${RENAME:-$TARGET}-$TYPE"
   fi
 
-  if [ -e "$OUTPUT.sqf" ] || [ -e "$OUTPUT/bin/$TARGET-cc" ] ||
-     [ -e "$OUTPUT/bin/cc" ]
+  if [ -e "$OUTPUT.sqf" ] || [ -e "$OUTPUT/bin/$TARGET-ld" ] ||
+     [ -e "$OUTPUT/bin/ld" ]
   then
     return
   fi
