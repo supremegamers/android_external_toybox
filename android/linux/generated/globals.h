@@ -25,7 +25,7 @@ struct skeleton_data {
       long c;
       struct arg_list *d;
       long e;
-      char *also, *blubber;
+      char *f, *g, *h, *also, *blubber;
     } s;
     struct {
       long b;
@@ -255,6 +255,7 @@ struct blkdiscard_data {
 
 struct blkid_data {
   struct arg_list *s;
+  char *o;
 };
 
 // toys/other/blockdev.c
