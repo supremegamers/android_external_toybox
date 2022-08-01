@@ -131,13 +131,14 @@
 #undef FLAG_f
 #endif
 
-// blkid ULs*[!LU] ULs*[!LU]
+// blkid ULo:s*[!LU] ULo:s*[!LU]
 #undef OPTSTR_blkid
-#define OPTSTR_blkid "ULs*[!LU]"
+#define OPTSTR_blkid "ULo:s*[!LU]"
 #ifdef CLEANUP_blkid
 #undef CLEANUP_blkid
 #undef FOR_blkid
 #undef FLAG_s
+#undef FLAG_o
 #undef FLAG_L
 #undef FLAG_U
 #endif
@@ -2202,9 +2203,9 @@
 #undef FLAG_all
 #endif
 
-// nsenter <1a(all)F(no-fork)t#<1(target)C(cgroup):;i:(ipc);m:(mount);n:(net);p:(pid);u:(uts);U:(user); <1a(all)F(no-fork)t#<1(target)C(cgroup):;i:(ipc);m:(mount);n:(net);p:(pid);u:(uts);U:(user);
+// nsenter <1a(all)F(no-fork)t#<1(target)C(cgroup):; i(ipc):; m(mount):; n(net):; p(pid):; u(uts):; U(user):;  <1a(all)F(no-fork)t#<1(target)C(cgroup):; i(ipc):; m(mount):; n(net):; p(pid):; u(uts):; U(user):; 
 #undef OPTSTR_nsenter
-#define OPTSTR_nsenter "<1a(all)F(no-fork)t#<1(target)C(cgroup):;i:(ipc);m:(mount);n:(net);p:(pid);u:(uts);U:(user);"
+#define OPTSTR_nsenter "<1a(all)F(no-fork)t#<1(target)C(cgroup):; i(ipc):; m(mount):; n(net):; p(pid):; u(uts):; U(user):; "
 #ifdef CLEANUP_nsenter
 #undef CLEANUP_nsenter
 #undef FOR_nsenter
@@ -2793,9 +2794,9 @@
 #undef FLAG_z
 #endif
 
-// skeleton   (walrus)(blubber):;(also):e@d*c#b:a
+// skeleton   (walrus)(blubber):;(also):h(hlong):; g(glong): f(longf):;e@d*c#b:a
 #undef OPTSTR_skeleton
-#define OPTSTR_skeleton "(walrus)(blubber):;(also):e@d*c#b:a"
+#define OPTSTR_skeleton "(walrus)(blubber):;(also):h(hlong):; g(glong): f(longf):;e@d*c#b:a"
 #ifdef CLEANUP_skeleton
 #undef CLEANUP_skeleton
 #undef FOR_skeleton
@@ -2804,6 +2805,9 @@
 #undef FLAG_c
 #undef FLAG_d
 #undef FLAG_e
+#undef FLAG_f
+#undef FLAG_g
+#undef FLAG_h
 #undef FLAG_also
 #undef FLAG_blubber
 #undef FLAG_walrus
@@ -3474,9 +3478,9 @@
 #undef FLAG_f
 #endif
 
-// unshare <1^a(all)f(fork)r(map-root-user)C(cgroup):;i(ipc):;m(mount):;n(net):;p(pid):;u(uts):;U(user):; <1^a(all)f(fork)r(map-root-user)C(cgroup):;i(ipc):;m(mount):;n(net):;p(pid):;u(uts):;U(user):;
+// unshare <1^a(all)f(fork)r(map-root-user)C(cgroup):; i(ipc):; m(mount):; n(net):; p(pid):; u(uts):; U(user):;  <1^a(all)f(fork)r(map-root-user)C(cgroup):; i(ipc):; m(mount):; n(net):; p(pid):; u(uts):; U(user):; 
 #undef OPTSTR_unshare
-#define OPTSTR_unshare "<1^a(all)f(fork)r(map-root-user)C(cgroup):;i(ipc):;m(mount):;n(net):;p(pid):;u(uts):;U(user):;"
+#define OPTSTR_unshare "<1^a(all)f(fork)r(map-root-user)C(cgroup):; i(ipc):; m(mount):; n(net):; p(pid):; u(uts):; U(user):; "
 #ifdef CLEANUP_unshare
 #undef CLEANUP_unshare
 #undef FOR_unshare
@@ -3860,8 +3864,9 @@
 #define TT this.blkid
 #endif
 #define FLAG_s (1<<0)
-#define FLAG_L (1<<1)
-#define FLAG_U (1<<2)
+#define FLAG_o (1<<1)
+#define FLAG_L (1<<2)
+#define FLAG_U (1<<3)
 #endif
 
 #ifdef FOR_blockdev
@@ -6315,9 +6320,12 @@
 #define FLAG_c (FORCED_FLAG<<2)
 #define FLAG_d (FORCED_FLAG<<3)
 #define FLAG_e (FORCED_FLAG<<4)
-#define FLAG_also (FORCED_FLAG<<5)
-#define FLAG_blubber (FORCED_FLAG<<6)
-#define FLAG_walrus (FORCED_FLAG<<7)
+#define FLAG_f (FORCED_FLAG<<5)
+#define FLAG_g (FORCED_FLAG<<6)
+#define FLAG_h (FORCED_FLAG<<7)
+#define FLAG_also (FORCED_FLAG<<8)
+#define FLAG_blubber (FORCED_FLAG<<9)
+#define FLAG_walrus (FORCED_FLAG<<10)
 #endif
 
 #ifdef FOR_skeleton_alias
