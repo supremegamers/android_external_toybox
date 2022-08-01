@@ -336,7 +336,7 @@
 
 #define HELP_fstype "usage: fstype DEV...\n\nPrint type of filesystem on a block device or image."
 
-#define HELP_blkid "usage: blkid [-s TAG] [-UL] DEV...\n\nPrint type, label and UUID of filesystem on a block device or image.\n\n-U	Show UUID only (or device with that UUID)\n-L	Show LABEL only (or device with that LABEL)\n-s TAG	Only show matching tags (default all)"
+#define HELP_blkid "usage: blkid [-o TYPE] [-s TAG] [-UL] DEV...\n\nPrint type, label and UUID of filesystem on a block device or image.\n\n-U	Show UUID only (or device with that UUID)\n-L	Show LABEL only (or device with that LABEL)\n-o TYPE	Output format (full, value, export)\n-s TAG	Only show matching tags (default all)"
 
 #define HELP_blkdiscard "usage: blkdiscard [-olszf] DEVICE\n\nDiscard device sectors.\n\n-o, --offset OFF	Byte offset to start discarding at (default 0)\n-l, --length LEN	Bytes to discard (default all)\n-s, --secure		Perform secure discard\n-z, --zeroout		Zero-fill rather than discard\n-f, --force		Disable check for mounted filesystem\n\nOFF and LEN must be aligned to the device sector size.\nBy default entire device is discarded.\nWARNING: All discarded data is permanently lost!"
 
