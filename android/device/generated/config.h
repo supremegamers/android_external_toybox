@@ -152,8 +152,8 @@
 #define USE_ECHO(...) __VA_ARGS__
 #define CFG_EGREP 1
 #define USE_EGREP(...) __VA_ARGS__
-#define CFG_EJECT 0
-#define USE_EJECT(...)
+#define CFG_EJECT 1
+#define USE_EJECT(...) __VA_ARGS__
 #define CFG_ENV 1
 #define USE_ENV(...) __VA_ARGS__
 #define CFG_EXIT 0
