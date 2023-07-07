@@ -414,7 +414,7 @@ struct nbd_client_data {
 // toys/other/nsenter.c
 
 struct nsenter_data {
-  char *UupnmiC[6];
+  char *UupnmiC[7];
   long t;
 };
 
@@ -1469,7 +1469,7 @@ struct paste_data {
 
 struct patch_data {
   char *i, *d;
-  long p, g, F;
+  long v, p, g, F;
 
   void *current_hunk;
   long oldline, oldlen, newline, newlen, linenum, outnum;

@@ -2364,9 +2364,9 @@
 #undef FLAG_d
 #endif
 
-// patch >2(no-backup-if-mismatch)(dry-run)F#g#fulp#d:i:Rs(quiet) >2(no-backup-if-mismatch)(dry-run)xF#g#fulp#d:i:Rs(quiet)
+// patch >2(no-backup-if-mismatch)(dry-run)F#g#fulp#v(verbose)@d:i:Rs(quiet)[!sv] >2(no-backup-if-mismatch)(dry-run)F#g#fulp#v(verbose)@d:i:Rs(quiet)[!sv]
 #undef OPTSTR_patch
-#define OPTSTR_patch ">2(no-backup-if-mismatch)(dry-run)F#g#fulp#d:i:Rs(quiet)"
+#define OPTSTR_patch ">2(no-backup-if-mismatch)(dry-run)F#g#fulp#v(verbose)@d:i:Rs(quiet)[!sv]"
 #ifdef CLEANUP_patch
 #undef CLEANUP_patch
 #undef FOR_patch
@@ -2374,13 +2374,13 @@
 #undef FLAG_R
 #undef FLAG_i
 #undef FLAG_d
+#undef FLAG_v
 #undef FLAG_p
 #undef FLAG_l
 #undef FLAG_u
 #undef FLAG_f
 #undef FLAG_g
 #undef FLAG_F
-#undef FLAG_x
 #undef FLAG_dry_run
 #undef FLAG_no_backup_if_mismatch
 #endif
@@ -6042,13 +6042,13 @@
 #define FLAG_R (1LL<<1)
 #define FLAG_i (1LL<<2)
 #define FLAG_d (1LL<<3)
-#define FLAG_p (1LL<<4)
-#define FLAG_l (1LL<<5)
-#define FLAG_u (1LL<<6)
-#define FLAG_f (1LL<<7)
-#define FLAG_g (1LL<<8)
-#define FLAG_F (1LL<<9)
-#define FLAG_x (FORCED_FLAG<<10)
+#define FLAG_v (1LL<<4)
+#define FLAG_p (1LL<<5)
+#define FLAG_l (1LL<<6)
+#define FLAG_u (1LL<<7)
+#define FLAG_f (1LL<<8)
+#define FLAG_g (1LL<<9)
+#define FLAG_F (1LL<<10)
 #define FLAG_dry_run (1LL<<11)
 #define FLAG_no_backup_if_mismatch (1LL<<12)
 #endif
