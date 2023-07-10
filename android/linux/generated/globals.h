@@ -322,6 +322,12 @@ struct hwclock_data {
   char *f;
 };
 
+// toys/other/i2ctools.c
+
+struct i2ctools_data {
+  long F;
+};
+
 // toys/other/ionice.c
 
 struct ionice_data {
@@ -1704,6 +1710,7 @@ extern union global_union {
 	struct gpiod_data gpiod;
 	struct hexedit_data hexedit;
 	struct hwclock_data hwclock;
+	struct i2ctools_data i2ctools;
 	struct ionice_data ionice;
 	struct login_data login;
 	struct losetup_data losetup;
