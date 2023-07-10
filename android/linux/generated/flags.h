@@ -1447,9 +1447,9 @@
 #undef FLAG_fast
 #endif
 
-// i2cdetect   >3aFlqry[!qr]
+// i2cdetect   >3aF#<0>63lqry[!qr][!Fl]
 #undef OPTSTR_i2cdetect
-#define OPTSTR_i2cdetect ">3aFlqry[!qr]"
+#define OPTSTR_i2cdetect ">3aF#<0>63lqry[!qr][!Fl]"
 #ifdef CLEANUP_i2cdetect
 #undef CLEANUP_i2cdetect
 #undef FOR_i2cdetect
@@ -1489,6 +1489,17 @@
 #undef FOR_i2cset
 #undef FLAG_y
 #undef FLAG_f
+#endif
+
+// i2ctransfer   <2vfy
+#undef OPTSTR_i2ctransfer
+#define OPTSTR_i2ctransfer "<2vfy"
+#ifdef CLEANUP_i2ctransfer
+#undef CLEANUP_i2ctransfer
+#undef FOR_i2ctransfer
+#undef FLAG_y
+#undef FLAG_f
+#undef FLAG_v
 #endif
 
 // iconv   cst:f:
@@ -5229,6 +5240,16 @@
 #endif
 #define FLAG_y (FORCED_FLAG<<0)
 #define FLAG_f (FORCED_FLAG<<1)
+#endif
+
+#ifdef FOR_i2ctransfer
+#define CLEANUP_i2ctransfer
+#ifndef TT
+#define TT this.i2ctransfer
+#endif
+#define FLAG_y (FORCED_FLAG<<0)
+#define FLAG_f (FORCED_FLAG<<1)
+#define FLAG_v (FORCED_FLAG<<2)
 #endif
 
 #ifdef FOR_iconv
