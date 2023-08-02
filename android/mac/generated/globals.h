@@ -659,21 +659,6 @@ struct crontab_data {
   char *cdir;
 };
 
-// toys/pending/dd.c
-
-struct dd_data {
-  int show_xfer, show_records;
-  unsigned long long bytes, in_full, in_part, out_full, out_part, start;
-  char *buff;
-  struct {
-    char *name, *bp;
-    int fd;
-    long sz, count;
-    unsigned long long offset;
-  } in, out;
-  unsigned conv, iflag, oflag;
-};
-
 // toys/pending/dhcp.c
 
 struct dhcp_data {
@@ -1300,6 +1285,14 @@ struct date_data {
   unsigned nano;
 };
 
+// toys/posix/dd.c
+
+struct dd_data {
+  // Display fields
+  int show_xfer, show_records;
+  unsigned long long bytes, in_full, in_part, out_full, out_part, start;
+};
+
 // toys/posix/df.c
 
 struct df_data {
@@ -1409,7 +1402,7 @@ struct logger_data {
 // toys/posix/ls.c
 
 struct ls_data {
-  long w, l;
+  long w, l, block_size;
   char *color, *sort;
 
   struct dirtree *files, *singledir;
@@ -1752,7 +1745,6 @@ extern union global_union {
 	struct chsh_data chsh;
 	struct crond_data crond;
 	struct crontab_data crontab;
-	struct dd_data dd;
 	struct dhcp_data dhcp;
 	struct dhcp6_data dhcp6;
 	struct dhcpd_data dhcpd;
@@ -1803,6 +1795,7 @@ extern union global_union {
 	struct cpio_data cpio;
 	struct cut_data cut;
 	struct date_data date;
+	struct dd_data dd;
 	struct df_data df;
 	struct du_data du;
 	struct env_data env;
