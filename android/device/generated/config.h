@@ -220,16 +220,16 @@
 #define USE_GITINIT(...)
 #define CFG_GITREMOTE 0
 #define USE_GITREMOTE(...)
-#define CFG_GPIODETECT 0
-#define USE_GPIODETECT(...)
-#define CFG_GPIOFIND 0
-#define USE_GPIOFIND(...)
-#define CFG_GPIOGET 0
-#define USE_GPIOGET(...)
-#define CFG_GPIOINFO 0
-#define USE_GPIOINFO(...)
-#define CFG_GPIOSET 0
-#define USE_GPIOSET(...)
+#define CFG_GPIODETECT 1
+#define USE_GPIODETECT(...) __VA_ARGS__
+#define CFG_GPIOFIND 1
+#define USE_GPIOFIND(...) __VA_ARGS__
+#define CFG_GPIOGET 1
+#define USE_GPIOGET(...) __VA_ARGS__
+#define CFG_GPIOINFO 1
+#define USE_GPIOINFO(...) __VA_ARGS__
+#define CFG_GPIOSET 1
+#define USE_GPIOSET(...) __VA_ARGS__
 #define CFG_GREP 1
 #define USE_GREP(...) __VA_ARGS__
 #define CFG_GROUPADD 0
@@ -272,6 +272,8 @@
 #define USE_I2CGET(...) __VA_ARGS__
 #define CFG_I2CSET 1
 #define USE_I2CSET(...) __VA_ARGS__
+#define CFG_I2CTRANSFER 1
+#define USE_I2CTRANSFER(...) __VA_ARGS__
 #define CFG_ICONV 1
 #define USE_ICONV(...) __VA_ARGS__
 #define CFG_ID 1
@@ -320,8 +322,8 @@
 #define USE_LN(...) __VA_ARGS__
 #define CFG_LOAD_POLICY 1
 #define USE_LOAD_POLICY(...) __VA_ARGS__
-#define CFG_LOGGER 0
-#define USE_LOGGER(...)
+#define CFG_LOGGER 1
+#define USE_LOGGER(...) __VA_ARGS__
 #define CFG_LOGIN 0
 #define USE_LOGIN(...)
 #define CFG_LOGNAME 1
@@ -516,6 +518,8 @@
 #define USE_SH(...)
 #define CFG_SHRED 0
 #define USE_SHRED(...)
+#define CFG_SHUF 0
+#define USE_SHUF(...)
 #define CFG_SKELETON_ALIAS 0
 #define USE_SKELETON_ALIAS(...)
 #define CFG_SKELETON 0

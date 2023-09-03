@@ -2,6 +2,8 @@
 
 struct log_data {
   char *t, *p;
+
+  int pri;
 };
 
 // toys/example/demo_number.c
@@ -320,6 +322,12 @@ struct hwclock_data {
   char *f;
 };
 
+// toys/other/i2ctools.c
+
+struct i2ctools_data {
+  long F;
+};
+
 // toys/other/ionice.c
 
 struct ionice_data {
@@ -360,7 +368,7 @@ struct lsattr_data {
 
 struct lsusb_data {
   char *i;
-  long n;
+  long x, n;
 
   void *ids, *class;
   int count;
@@ -412,7 +420,7 @@ struct nbd_client_data {
 // toys/other/nsenter.c
 
 struct nsenter_data {
-  char *UupnmiC[6];
+  char *UupnmiC[7];
   long t;
 };
 
@@ -482,6 +490,15 @@ struct shred_data {
   long o, n, s;
 };
 
+// toys/other/shuf.c
+
+struct shuf_data {
+  long n;
+
+  char **lines;
+  long count;
+};
+
 // toys/other/stat.c
 
 struct stat_data {
@@ -506,6 +523,7 @@ struct swapon_data {
 struct switch_root_data {
   char *c;
 
+  struct stat new;
   dev_t rootdev;
 };
 
@@ -641,21 +659,6 @@ struct crontab_data {
   char *cdir;
 };
 
-// toys/pending/dd.c
-
-struct dd_data {
-  int show_xfer, show_records;
-  unsigned long long bytes, in_full, in_part, out_full, out_part, start;
-  struct {
-    char *name;
-    int fd;
-    unsigned char *buff, *bp;
-    long sz, count;
-    unsigned long long offset;
-  } in, out;
-  unsigned conv, iflag, oflag;
-};
-
 // toys/pending/dhcp.c
 
 struct dhcp_data {
@@ -720,9 +723,7 @@ struct dumpleases_data {
 // toys/pending/expr.c
 
 struct expr_data {
-  char **tok; // current token, not on the stack since recursive calls mutate it
-
-  char *refree;
+  char **tok, *delete;
 };
 
 // toys/pending/fdisk.c
@@ -1040,11 +1041,8 @@ struct syslogd_data {
 // toys/pending/tcpsvd.c
 
 struct tcpsvd_data {
-  char *name;
-  char *user;
-  long bn;
-  char *nmsg;
-  long cn;
+  char *l, *u, *C;
+  long b, c;
 
   int maxc;
   int count_all;
@@ -1285,6 +1283,14 @@ struct date_data {
   unsigned nano;
 };
 
+// toys/posix/dd.c
+
+struct dd_data {
+  // Display fields
+  int show_xfer, show_records;
+  unsigned long long bytes, in_full, in_part, out_full, out_part, start;
+};
+
 // toys/posix/df.c
 
 struct df_data {
@@ -1387,14 +1393,15 @@ struct ln_data {
 
 struct logger_data {
   char *p, *t;
+
+  int priority;
 };
 
 // toys/posix/ls.c
 
 struct ls_data {
-  long w;
-  long l;
-  char *color;
+  long w, l, block_size;
+  char *color, *sort;
 
   struct dirtree *files, *singledir;
   unsigned screen_width;
@@ -1459,7 +1466,7 @@ struct paste_data {
 
 struct patch_data {
   char *i, *d;
-  long p, g, F;
+  long v, p, g, F;
 
   void *current_hunk;
   long oldline, oldlen, newline, newlen, linenum, outnum;
@@ -1694,6 +1701,7 @@ extern union global_union {
 	struct gpiod_data gpiod;
 	struct hexedit_data hexedit;
 	struct hwclock_data hwclock;
+	struct i2ctools_data i2ctools;
 	struct ionice_data ionice;
 	struct login_data login;
 	struct losetup_data losetup;
@@ -1716,6 +1724,7 @@ extern union global_union {
 	struct setfattr_data setfattr;
 	struct sha3sum_data sha3sum;
 	struct shred_data shred;
+	struct shuf_data shuf;
 	struct stat_data stat;
 	struct swapon_data swapon;
 	struct switch_root_data switch_root;
@@ -1734,7 +1743,6 @@ extern union global_union {
 	struct chsh_data chsh;
 	struct crond_data crond;
 	struct crontab_data crontab;
-	struct dd_data dd;
 	struct dhcp_data dhcp;
 	struct dhcp6_data dhcp6;
 	struct dhcpd_data dhcpd;
@@ -1785,6 +1793,7 @@ extern union global_union {
 	struct cpio_data cpio;
 	struct cut_data cut;
 	struct date_data date;
+	struct dd_data dd;
 	struct df_data df;
 	struct du_data du;
 	struct env_data env;

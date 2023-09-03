@@ -79,6 +79,18 @@ static unsigned short elf_short(char **p)
   return elf_get(p, 2);
 }
 
+static int fits(char *what, int n, unsigned long long off, unsigned long long size)
+{
+  if (off > TT.size || size > TT.size || off > TT.size-size) {
+    if (n == -1) *toybuf = 0;
+    else snprintf(toybuf, sizeof(toybuf), " %d", n);
+    printf("%s%s's offset %llu + size %llu > file size %llu\n",
+      what, toybuf, off, size, TT.size);
+    return 0;
+  }
+  return 1;
+}
+
 static int get_sh(unsigned i, struct sh *s)
 {
   char *shdr = TT.elf+TT.shoff+i*TT.shentsize;
@@ -100,12 +112,7 @@ static int get_sh(unsigned i, struct sh *s)
   s->addralign = elf_long(&shdr);
   s->entsize = elf_long(&shdr);
 
-  if (s->type != 8) {
-    if (s->offset>TT.size || s->size>TT.size || s->offset>TT.size-s->size) {
-      printf("Bad offset/size %llu/%llu for sh %d\n", s->offset, s->size, i);
-      return 0;
-    }
-  }
+  if (s->type != 8 && !fits("section header", i, s->offset, s->size)) return 0;
 
   if (!TT.shstrtab) s->name = "?";
   else {
@@ -123,6 +130,8 @@ static int find_section(char *spec, struct sh *s)
 {
   char *end;
   unsigned i;
+
+  if (!spec) return 0;
 
   // Valid section number?
   i = estrtol(spec, &end, 0);
@@ -165,11 +174,7 @@ static int get_ph(int i, struct ph *ph)
     ph->align = elf_int(&phdr);
   }
 
-  if (ph->offset >= TT.size-ph->filesz) {
-    printf("phdr %d has bad offset/size %llu/%llu", i, ph->offset, ph->filesz);
-    return 0;
-  }
-
+  if (!fits("program header", i, ph->offset, ph->filesz)) return 0;
   return 1;
 }
 
@@ -299,11 +304,7 @@ static void show_notes(unsigned long offset, unsigned long size)
 {
   char *note = TT.elf + offset;
 
-  if (size > TT.size || offset > TT.size-size) {
-    printf("Bad note bounds %lu/%lu\n", offset, size);
-
-    return;
-  }
+  if (!fits("note", -1, offset, size)) return;
 
   printf("  %-20s%11s\tDescription\n", "Owner", "Data size");
   while (note < TT.elf+offset+size) {
@@ -318,11 +319,38 @@ static void show_notes(unsigned long offset, unsigned long size)
         printf("NT_GNU_ABI_TAG\tOS: %s, ABI: %u.%u.%u",
           !elf_int(&p)?"Linux":"?", elf_int(&p), elf_int(&p), elf_int(&p)), j=1;
       } else if (type == 3) {
-// TODO should this set j=1?
         printf("NT_GNU_BUILD_ID\t");
         for (;j<descsz;j++) printf("%02x", *p++);
       } else if (type == 4) {
         printf("NT_GNU_GOLD_VERSION\t%.*s", descsz, p), j=1;
+      } else if (type == 5) {
+        printf("NT_GNU_PROPERTY_TYPE_0\t");
+        while (descsz-j > 8) { // Ignore 0-padding at the end.
+          int pr_type = elf_int(&p);
+          int pr_size = elf_int(&p), k, pr_data;
+
+          j += 8;
+          printf("\n    Properties:    ");
+          if (pr_size != 4) {
+            // Just hex dump anything we aren't familiar with.
+            for (k=0;k<pr_size;k++) printf("%02x", *p++);
+            xputc('\n');
+            j += pr_size;
+          } else {
+            pr_data = elf_int(&p);
+            j += 4;
+            if (pr_type == 0xc0000000) {
+              printf("arm64 features:");
+              if (pr_data & 1) printf(" bti");
+              if (pr_data & 2) printf(" pac");
+              xputc('\n');
+            } else if (pr_type == 0xc0008002) {
+              printf("x86 isa needed: x86-64v%d", ffs(pr_data));
+            } else {
+              printf("other (%#x): %#x", pr_type, pr_data);
+            }
+          }
+        }
       } else p -= 4;
     } else if (notematch(namesz, &p, "Android")) {
       if (type == 1) {
@@ -331,10 +359,8 @@ static void show_notes(unsigned long offset, unsigned long size)
       } else p -= 8;
     } else if (notematch(namesz, &p, "CORE")) {
       if (*(desc = nt_type_core(type)) != '0') printf("%s", desc), j=1;
-// TODO else p -= 5?
     } else if (notematch(namesz, &p, "LINUX")) {
       if (*(desc = nt_type_linux(type)) != '0') printf("%s", desc), j=1;
-// TODO else p -= 6?
     }
 
     // If we didn't do custom output above, show a hex dump.
@@ -574,7 +600,7 @@ static void scan_elf()
     }
   }
 
-  if (FLAG(x) && find_section(TT.x, &s)) {
+  if (find_section(TT.x, &s)) {
     char *p = TT.elf+s.offset;
     long offset = 0;
 
@@ -592,7 +618,7 @@ static void scan_elf()
     xputc('\n');
   }
 
-  if (FLAG(p) && find_section(TT.p, &s)) {
+  if (find_section(TT.p, &s)) {
     char *begin = TT.elf+s.offset, *end = begin + s.size, *p = begin;
     int any = 0;
 
@@ -624,9 +650,9 @@ void readelf_main(void)
     int fd = open(TT.f = *arg, O_RDONLY);
     struct stat sb;
 
-    if (fd == -1) perror_msg("%s", TT.f);
+    if (fd == -1) perror_msg_raw(TT.f);
     else {
-      if (fstat(fd, &sb)) perror_msg("%s", TT.f);
+      if (fstat(fd, &sb)) perror_msg_raw(TT.f);
       else if (!sb.st_size) error_msg("%s: empty", TT.f);
       else if (!S_ISREG(sb.st_mode)) error_msg("%s: not a regular file",TT.f);
       else {

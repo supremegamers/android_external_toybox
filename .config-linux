@@ -99,9 +99,9 @@ CONFIG_EXPR=y
 # CONFIG_FALSE is not set
 # CONFIG_FDISK is not set
 CONFIG_FGREP=y
-# CONFIG_FILE is not set
+CONFIG_FILE=y
 CONFIG_FIND=y
-# CONFIG_FLOCK is not set
+CONFIG_FLOCK=y
 # CONFIG_FMT is not set
 # CONFIG_FOLD is not set
 # CONFIG_FREE is not set
@@ -149,6 +149,7 @@ CONFIG_HOSTNAME=y
 # CONFIG_I2CDUMP is not set
 # CONFIG_I2CGET is not set
 # CONFIG_I2CSET is not set
+# CONFIG_I2CTRANSFER is not set
 # CONFIG_ICONV is not set
 CONFIG_ID=y
 # CONFIG_ID_Z is not set
@@ -272,6 +273,7 @@ CONFIG_SHA256SUM=y
 CONFIG_SHA512SUM=y
 # CONFIG_SH is not set
 # CONFIG_SHRED is not set
+# CONFIG_SHUF is not set
 # CONFIG_SKELETON_ALIAS is not set
 # CONFIG_SKELETON is not set
 CONFIG_SLEEP=y
