@@ -634,7 +634,7 @@ static int check_copy_file_range(void)
 #if defined(__ANDROID__)
   // Android's had the constant for years, but seccomp means you'll get
   // SIGSYS if you try the system call before 2023's Android U.
-  return (android_api_level() >= __ANDROID_API_U__) ? __NR_copy_file_range : 0;
+  return (android_api_level() >= 34) ? __NR_copy_file_range : 0;
 #elif defined(__NR_copy_file_range)
   // glibc added this constant in git at the end of 2017, shipped 2018-02.
   return __NR_copy_file_range;
