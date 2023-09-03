@@ -85,7 +85,7 @@
 //     ! More than one in group is error   [!abc] means -ab calls error_exit()
 //       primarily useful if you can switch things back off again.
 //
-//   You may use octal escapes with the high bit (127) set to use a control
+//   You may use octal escapes with the high bit (128) set to use a control
 //   character as an option flag. For example, \300 would be the option -@
 
 // Notes from getopt man page
@@ -135,7 +135,7 @@ static void forget_arg(struct opts *opt)
 {
   if (opt->arg) {
     if (opt->type=='*') llist_traverse((void *)*opt->arg, free);
-    *opt->arg = 0;
+    *opt->arg = opt->val[2].l;
   }
 }
 
@@ -318,7 +318,7 @@ static int parse_optflaglist(struct getoptflagstate *gof)
       continue;
 
     // Claim this option, loop to see what's after it.
-    } else new->c = 127&*options;
+    } else new->c = *options;
 
     options++;
   }
@@ -330,6 +330,7 @@ static int parse_optflaglist(struct getoptflagstate *gof)
     unsigned long long u = 1LL<<idx++;
 
     if (new->c == 1 || new->c=='~') new->c = 0;
+    else new->c &= 127;
     new->dex[1] = u;
     if (new->flags & 1) gof->requires |= u;
     if (new->type) {
@@ -364,7 +365,7 @@ static int parse_optflaglist(struct getoptflagstate *gof)
           if (*options==1) break;
           if (CFG_TOYBOX_DEBUG && !opt)
             error_exit("[] unknown target %c", *options);
-          if (opt->c == *options) {
+          if (opt->c == (127&*options)) {
             bits |= ll;
             break;
           }

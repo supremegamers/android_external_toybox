@@ -7,7 +7,7 @@
 
 HOSTCC?=cc
 
-export CROSS_COMPILE CFLAGS OPTIMIZE LDOPTIMIZE CC HOSTCC V STRIP
+export CROSS_COMPILE CFLAGS OPTIMIZE LDOPTIMIZE CC HOSTCC V STRIP ASAN
 
 all: toybox
 
@@ -73,11 +73,12 @@ distclean: clean root_clean
 	@rm -f toybox* .config* .singlemake
 	@echo removed .config
 
+tests: ASAN=1
 tests: toybox
 	scripts/test.sh
 
 root:
-	scripts/mkroot.sh $(MAKEFLAGS)
+	mkroot/mkroot.sh $(MAKEFLAGS)
 
 run_root:
 	cd root/"$${CROSS:-host}" && ./run-qemu.sh
