@@ -56,7 +56,9 @@ all_srcs = [
     "lib/args.c",
     "lib/commas.c",
     "lib/dirtree.c",
+    "lib/elf.c",
     "lib/env.c",
+    "lib/hash.c",
     "lib/lib.c",
     "lib/llist.c",
     "lib/net.c",
@@ -73,6 +75,7 @@ all_srcs = [
     "toys/net/microcom.c",
     "toys/other/dos2unix.c",
     "toys/other/eject.c",
+    "toys/other/getopt.c",
     "toys/other/readlink.c",
     "toys/other/setsid.c",
     "toys/other/stat.c",
@@ -83,7 +86,6 @@ all_srcs = [
     "toys/other/yes.c",
     "toys/pending/diff.c",
     "toys/pending/expr.c",
-    "toys/pending/getopt.c",
     "toys/pending/tr.c",
     "toys/posix/basename.c",
     "toys/posix/cat.c",
@@ -186,6 +188,7 @@ device_srcs = [
     "toys/other/lsmod.c",
     "toys/other/lsusb.c",
     "toys/other/makedevs.c",
+    "toys/other/memeater.c",
     "toys/other/mkswap.c",
     "toys/other/modinfo.c",
     "toys/other/mountpoint.c",
@@ -292,6 +295,7 @@ toybox_symlinks = [
     "fsync",
     "getconf",
     "getenforce",
+    "getfattr",
     "gpiodetect",
     "gpiofind",
     "gpioget",
@@ -308,6 +312,7 @@ toybox_symlinks = [
     "i2cdump",
     "i2cget",
     "i2cset",
+    "i2ctransfer",
     "iconv",
     "id",
     "ifconfig",
@@ -331,6 +336,7 @@ toybox_symlinks = [
     "lspci",
     "lsusb",
     "md5sum",
+    "memeater",
     "mkdir",
     "mkfifo",
     "mknod",
@@ -376,6 +382,7 @@ toybox_symlinks = [
     "sendevent",
     "seq",
     "setenforce",
+    "setfattr",
     "setsid",
     "sha1sum",
     "sha224sum",
@@ -467,10 +474,6 @@ cc_defaults {
         darwin: {
             local_include_dirs: ["android/mac"],
             cflags: [
-                // You can't have toybox cp(1) on macOS before 10.13.
-                "-mmacosx-version-min=10.13",
-                "-UMACOSX_DEPLOYMENT_TARGET",
-                "-DMACOSX_DEPLOYMENT_TARGET=10.13",
                 // macOS' getgroups(3) signature differs.
                 "-Wno-pointer-sign",
                 // diff.c defines MIN and MAX which (only on macOS) we're
@@ -506,19 +509,22 @@ cc_defaults {
     // startup time.
     stl: "none",
 
-    shared_libs: [
-        "libcrypto",
-        "libz",
-    ],
-
     target: {
         android: {
             shared_libs: [
+                "libcrypto",
                 "liblog",
                 "libprocessgroup",
                 "libselinux",
+                "libz",
             ],
             symlinks: toybox_symlinks,
+        },
+        host: {
+            static_libs: [
+                "libcrypto",
+                "libz",
+            ],
         },
     },
 }
@@ -547,8 +553,12 @@ cc_binary {
     static_executable: true,
     compile_multilib: "both",
     multilib: {
-        lib32: { suffix: "32", },
-        lib64: { suffix: "64", },
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
     },
     stl: "libc++_static",
     static_libs: [
@@ -581,7 +591,25 @@ sh_test {
     test_suites: ["general-tests"],
     host_supported: true,
     device_supported: false,
-    require_root:true,
+    require_root: true,
+    data: [
+        "tests/**/*",
+        "scripts/runtest.sh",
+    ],
+}
+
+cc_test {
+    name: "toybox-gtests",
+    compile_multilib: "first",
+    srcs: [
+        "toybox-gtests.cpp",
+    ],
+    static_libs: [
+        "libbase",
+        "liblog",
+    ],
+    test_suites: ["device-tests"],
+    require_root: true,
     data: [
         "tests/**/*",
         "scripts/runtest.sh",

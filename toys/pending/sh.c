@@ -313,7 +313,7 @@ GLOBALS(
   long long SECONDS;
   char *isexec, *wcpat;
   unsigned options, jobcnt, LINENO;
-  int hfd, pid, bangpid, srclvl, recursion;
+  int hfd, pid, bangpid, srclvl, recursion, recfile[50+200*CFG_TOYBOX_FORK];
 
   // Callable function array
   struct sh_function {
@@ -608,7 +608,8 @@ static int recalculate(long long *dd, char **ss, int lvl)
   // If we got a variable, evaluate its contents to set *dd
   if (var) {
     // Recursively evaluate, catching x=y; y=x; echo $((x))
-    if (TT.recursion++ == 50+200*CFG_TOYBOX_FORK) {
+    TT.recfile[TT.recursion++] = 0;
+    if (TT.recursion == ARRAY_LEN(TT.recfile)) {
       perror_msg("recursive occlusion");
       --TT.recursion;
 
@@ -1052,7 +1053,7 @@ static char *declarep(struct sh_vars *var)
   }
   *out = 0;
 
-  return ss; 
+  return ss;
 }
 
 // Skip past valid prefix that could go before redirect
@@ -1132,7 +1133,7 @@ static char *parse_word(char *start, int early)
       } else if (*end=='(' && strchr("?*+@!", ii)) toybuf[quote++] = ')';
       else {
         if (ii!='\\') end--;
-        else if (!end[*end=='\n']) return *end ? 0 : end;
+        else if (!end[*end=='\n']) return (*end && !early) ? 0 : end;
         if (early && !quote) return end;
       }
       end++;
@@ -1212,6 +1213,11 @@ static void unredirect(int *urd)
 // TODO: waitpid(WNOHANG) to clean up zombies and catch background& ending
 static void subshell_callback(char **argv)
 {
+  int i;
+
+  // Don't leave open filehandles to scripts in children
+  for (i = 0; i<TT.recursion; i++)  if (TT.recfile[i]>0) close(TT.recfile[i]);
+
   // This depends on environ having been replaced by caller
   environ[1] = xmprintf("@%d,%d", getpid(), getppid());
   environ[2] = xmprintf("$=%d", TT.pid);
@@ -1615,7 +1621,7 @@ int do_wildcard_files(struct dirtree *node)
   lvl = ll;
   patend = wildcard_path(TT.wcpat, pattern-TT.wcpat, TT.wcdeck, &ll, 1);
 
-  // Don't include . entries unless explicitly asked for them 
+  // Don't include . entries unless explicitly asked for them
   if (*node->name=='.' && *pattern!='.') return 0;
 
   // Don't descend into non-directory (was called with DIRTREE_SYMFOLLOW)
@@ -1884,6 +1890,7 @@ static int expand_arg_nobrace(struct sh_arg *arg, char *str, unsigned flags,
         if (*ss != '<') ss = 0;
         else {
           while (isspace(*++ss));
+          // Can't return NULL because guaranteed ) context end
           if (!(ll = parse_word(ss, 0)-ss)) ss = 0;
           else {
             jj = ll+(ss-s);
@@ -2706,6 +2713,7 @@ static void sh_exec(char **argv)
 {
   char *pp = getvar("PATH" ? : _PATH_DEFPATH), *ss = TT.isexec ? : *argv,
     **sss = 0, **oldenv = environ, **argv2;
+  int norecurse = CFG_TOYBOX_NORECURSE || !toys.stacktop || TT.isexec, ii;
   struct string_list *sl = 0;
   struct toy_list *tl = 0;
 
@@ -2713,7 +2721,7 @@ static void sh_exec(char **argv)
   errno = ENOENT;
   if (strchr(ss, '/')) {
     if (access(ss, X_OK)) ss = 0;
-  } else if (CFG_TOYBOX_NORECURSE || !toys.stacktop || !(tl = toy_find(ss)))
+  } else if (norecurse || !(tl = toy_find(ss)))
     for (sl = find_in_path(pp, ss); sl || (ss = 0); free(llist_pop(&sl)))
       if (!access(ss = sl->str, X_OK)) break;
 
@@ -2737,6 +2745,11 @@ static void sh_exec(char **argv)
       sss = aa.v+aa.c-1;
     }
     *sss = xmprintf("_=%s", ss);
+
+    // Don't leave open filehandles to scripts in children
+    if (!TT.isexec)
+      for (ii = 0; ii<TT.recursion; ii++)
+        if (TT.recfile[ii]>0) close(TT.recfile[ii]);
 
     // Run builtin, exec command, or call shell script without #!
     toy_exec_which(tl, argv);
@@ -2889,7 +2902,7 @@ static struct sh_process *run_command(void)
 //dprintf(2, "%d builtin", getpid()); for (int xx = 0; xx<=pp->arg.c; xx++) dprintf(2, "{%s}", pp->arg.v[xx]); dprintf(2, "\n");
         toy_singleinit(tl, pp->arg.v);
         tl->toy_main();
-        xflush(0);
+        xexit();
       }
       toys.rebound = 0;
       pp->exit = toys.exitval;
@@ -3918,8 +3931,9 @@ do_then:
             printf("\n");
           } else {
             match = atoi(ss);
+            i = *s;
             free(ss);
-            if (!*ss) {
+            if (!i) {
               TT.ff->pl = blk->start;
               continue;
             } else setvarval(blk->fvar, (match<1 || match>blk->farg.c)
@@ -4075,6 +4089,7 @@ FILE *fpathopen(char *name)
 }
 
 // Read script input and execute lines, with or without prompts
+// If !ff input is interactive (prompt, editing, etc)
 int do_source(char *name, FILE *ff)
 {
   struct sh_pipeline *pl = 0;
@@ -4083,7 +4098,8 @@ int do_source(char *name, FILE *ff)
   int cc, ii;
   char *new;
 
-  if (++TT.recursion>(50+200*CFG_TOYBOX_FORK)) {
+  TT.recfile[TT.recursion++] = ff ? fileno(ff) : 0;
+  if (TT.recursion++>ARRAY_LEN(TT.recfile)) {
     error_msg("recursive occlusion");
 
     goto end;
@@ -4392,7 +4408,10 @@ void cd_main(void)
 
 void exit_main(void)
 {
-  exit(*toys.optargs ? atoi(*toys.optargs) : 0);
+  toys.exitval = *toys.optargs ? atoi(*toys.optargs) : 0;
+  toys.rebound = 0;
+  // TODO trap EXIT, sigatexit
+  xexit();
 }
 
 // lib/args.c can't +prefix & "+o history" needs space so parse cmdline here
@@ -4598,7 +4617,6 @@ void exec_main(void)
   sh_exec(toys.optargs);
 
   // report error (usually ENOENT) and return
-  perror_msg("%s", TT.isexec);
   if (*toys.optargs != TT.isexec) free(*toys.optargs);
   TT.isexec = 0;
   toys.exitval = 127;
@@ -4676,7 +4694,7 @@ void local_main(void)
     if (ff->vars) break;
   }
 
-  // list existing vars (todo: 
+  // list existing vars (todo:
   if (!toys.optc) {
     for (var = ff->vars; var; var++) xputs(var->str); // TODO escape
     return;

@@ -13,7 +13,6 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <fnmatch.h>
 #include <grp.h>
 #include <inttypes.h>
 #include <limits.h>
@@ -37,6 +36,7 @@
 #include <sys/statvfs.h>
 #include <sys/time.h>
 #include <sys/times.h>
+#include <sys/uio.h>
 #include <sys/utsname.h>
 #include <sys/wait.h>
 #include <syslog.h>
@@ -66,6 +66,7 @@
 // Non-posix headers
 #include <sys/ioctl.h>
 #include <sys/syscall.h>
+#include <sys/ttydefaults.h>
 
 #include "lib/lib.h"
 #include "lib/lsm.h"

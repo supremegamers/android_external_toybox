@@ -1,23 +1,20 @@
 # This project was upgraded with external_updater.
-# Usage: tools/external_updater/updater.sh update toybox
+# Usage: tools/external_updater/updater.sh update external/toybox
 # For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
 
 name: "toybox"
 description: "Toybox: all-in-one Linux command line."
 third_party {
-  url {
-    type: HOMEPAGE
-    value: "https://landley.net/toybox/"
-  }
-  url {
-    type: GIT
-    value: "https://github.com/landley/toybox"
-  }
-  version: "2c36636377e1c0615bfa2394eec49488f032e95d"
   license_type: UNENCUMBERED
   last_upgrade_date {
-    year: 2023
-    month: 8
-    day: 24
+    year: 2024
+    month: 3
+    day: 25
+  }
+  homepage: "https://landley.net/toybox/"
+  identifier {
+    type: "Git"
+    value: "https://github.com/landley/toybox"
+    version: "95906a13d1c6d0df5f521d2d91371791663f339e"
   }
 }
